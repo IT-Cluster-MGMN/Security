@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class SecurityServiceApplication {
 
 	public static void main(String[] args) {
-//dffddf
+//dffddf ватлоавловалова ватоваловлатлваолвоалова
 		SpringApplication.run(SecurityServiceApplication.class, args);
 	}
 
