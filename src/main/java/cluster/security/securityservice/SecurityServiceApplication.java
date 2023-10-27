@@ -8,6 +8,7 @@ public class SecurityServiceApplication {
 
 	public static void main(String[] args) {
 //dffddf ватлоавловалова ватоваловлатлваолвоалова
+		// test test
 		SpringApplication.run(SecurityServiceApplication.class, args);
 	}
 
