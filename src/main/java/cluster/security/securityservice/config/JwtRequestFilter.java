@@ -28,18 +28,18 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String authHeader = request.getHeader("Authorization");
+        String authHeader = request.getHeader(TokenMessage.TOKEN_HEADER);
         String username = null;
         String jwt = null;
 
-        if ((authHeader != null) && (authHeader.startsWith("Bearer "))) {
+        if ((authHeader != null) && (authHeader.startsWith(TokenMessage.TOKEN_PREFIX))) {
             jwt = authHeader.substring(7);
             try {
                 username = jwtTokenUtils.getUsernameFromToken(jwt);
             } catch (ExpiredJwtException e) {
-                log.debug("Jwt is not actual");
+                log.debug(TokenMessage.TOKEN_NOT_ACTUAL);
             } catch (SignatureException e) {
-                log.debug("Wrong signature");
+                log.debug(TokenMessage.TOKEN_WRONG_SIGNATURE);
             }
         }
 
@@ -53,5 +53,12 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(token);
         }
         filterChain.doFilter(request, response);
+    }
+
+    private static class TokenMessage {
+        private final static String TOKEN_HEADER = "Authorization";
+        private final static String TOKEN_PREFIX = "Bearer ";
+        private final static String TOKEN_NOT_ACTUAL = "Jwt is not actual";
+        private final static String TOKEN_WRONG_SIGNATURE = "Wrong signature";
     }
 }

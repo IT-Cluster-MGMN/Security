@@ -3,7 +3,7 @@ package cluster.security.securityservice.service;
 
 import cluster.security.securityservice.dao.UserJpaRepo;
 import cluster.security.securityservice.exception.UsernameException;
-import cluster.security.securityservice.model.UserRegistration;
+import cluster.security.securityservice.model.dtos.UserRegistration;
 import cluster.security.securityservice.model.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

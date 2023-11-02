@@ -24,6 +24,16 @@ public class SecurityConfig {
     private final UserService userService;
     private final JwtRequestFilter jwtRequestFilter;
 
+    private String[] matchers() {
+        return new String[]{
+                "/api/profile/**",
+                "/api/cart/**",
+                "/api/sell/**",
+                "/api/favorite/**",
+                "/api/info"
+        };
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -31,7 +41,7 @@ public class SecurityConfig {
                 .cors().disable()
                 .authorizeHttpRequests(config ->
                         config
-                                .requestMatchers("/profile/**", "/cart/**", "/sell/**", "/favorite/**").authenticated()
+                                .requestMatchers(matchers()).authenticated()
                                 .requestMatchers("/manager/**").hasRole("MANAGER")
                                 .anyRequest().permitAll()
                 )

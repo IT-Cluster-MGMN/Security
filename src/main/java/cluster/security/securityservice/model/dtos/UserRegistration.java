@@ -1,4 +1,4 @@
-package cluster.security.securityservice.model;
+package cluster.security.securityservice.model.dtos;
 
 
 import cluster.security.securityservice.model.entity.Authority;
