@@ -1,12 +1,10 @@
 package cluster.security.securityservice.utils;
 
-import lombok.RequiredArgsConstructor;
+import cluster.security.securityservice.util.JwtTokenUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 
 @SpringBootTest

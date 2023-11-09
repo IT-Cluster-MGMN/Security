@@ -1,25 +1,34 @@
-package cluster.security.securityservice.utils;
+package cluster.security.securityservice.util;
 
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import java.security.Key;
+import java.security.KeyStore;
 import java.time.Duration;
 import java.util.*;
 
 @Component
 public class JwtTokenUtils {
 
-    @Value("${jwt.secret}")
-    private String secret;
-
     @Value("${jwt.lifetime}")
     private Duration lifetime;
+    private final String secret = "jhn76ouhbgvyt697ybihgycr8tvyoubuvtycr6tvyoubhpijhbuvtcr96tvyoubhpj";
+    private Key key;
+
+    @PostConstruct
+    public void init() {
+        key = Keys.hmacShaKeyFor(secret.getBytes());
+    }
+
 
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
@@ -37,22 +46,8 @@ public class JwtTokenUtils {
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(issuedDate)
                 .setExpiration(expiredDate)
-                .signWith(SignatureAlgorithm.HS256, secret)
+                .signWith(key)
                 .compact();
     }
 
-    public String getUsernameFromToken(String token) {
-        return getClaimsFromToken(token).getSubject();
-    }
-
-    public List<String> getAuthoritiesFromToken(String token) {
-        return getClaimsFromToken(token).get("authorities", List.class);
-    }
-
-    private Claims getClaimsFromToken(String token) {
-        return Jwts.parser()
-                .setSigningKey(secret)
-                .parseClaimsJws(token)
-                .getBody();
-    }
 }

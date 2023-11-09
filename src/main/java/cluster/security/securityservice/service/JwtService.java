@@ -4,20 +4,15 @@ package cluster.security.securityservice.service;
 import cluster.security.securityservice.model.dtos.AuthError;
 import cluster.security.securityservice.model.dtos.JwtRequest;
 import cluster.security.securityservice.model.dtos.JwtResponse;
-import cluster.security.securityservice.utils.JwtTokenUtils;
+import cluster.security.securityservice.util.JwtTokenUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 @Service

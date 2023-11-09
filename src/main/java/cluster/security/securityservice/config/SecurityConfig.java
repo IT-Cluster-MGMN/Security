@@ -12,7 +12,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 
 @Configuration
@@ -22,30 +21,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final UserService userService;
-    private final JwtRequestFilter jwtRequestFilter;
-
-    private String[] matchers() {
-        return new String[]{
-                "/api/profile/**",
-                "/api/cart/**",
-                "/api/sell/**",
-                "/api/favorite/**",
-                "/api/info"
-        };
-    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
-                .cors().disable()
-                .authorizeHttpRequests(config ->
-                        config
-                                .requestMatchers(matchers()).authenticated()
-                                .requestMatchers("/manager/**").hasRole("MANAGER")
-                                .anyRequest().permitAll()
-                )
-                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+                .csrf().disable();
 
         return http.build();
     }
