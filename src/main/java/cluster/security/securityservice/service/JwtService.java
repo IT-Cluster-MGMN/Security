@@ -5,6 +5,7 @@ import cluster.security.securityservice.model.dtos.AuthError;
 import cluster.security.securityservice.model.dtos.JwtRequest;
 import cluster.security.securityservice.model.dtos.JwtResponse;
 import cluster.security.securityservice.util.JwtTokenUtils;
+import cluster.security.securityservice.util.RsaKeyUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +15,19 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.security.interfaces.RSAPublicKey;
+import java.util.Base64;
+
 
 @Service
 @RequiredArgsConstructor
 public class JwtService {
 
+    private final RsaKeyUtils keyUtils;
     private final UserService userService;
     private final JwtTokenUtils jwtTokenUtils;
     private final AuthenticationManager authenticationManager;
+
 
     public ResponseEntity<?> createAuthToken(JwtRequest authRequest) {
         try {
@@ -39,5 +45,9 @@ public class JwtService {
         String token = jwtTokenUtils.generateToken(userDetails);
 
         return ResponseEntity.ok(new JwtResponse(token));
+    }
+
+    public ResponseEntity<?> getPublicKey() {
+        return ResponseEntity.ok(Base64.getEncoder().encodeToString(keyUtils.publicKey().getEncoded()));
     }
 }
