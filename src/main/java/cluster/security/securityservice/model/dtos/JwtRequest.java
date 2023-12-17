@@ -1,6 +1,5 @@
 package cluster.security.securityservice.model.dtos;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data

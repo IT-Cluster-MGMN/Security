@@ -2,16 +2,17 @@ version: '3'
 services:
   mysql:
     image: mysql
+    network_mode: host
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
       MYSQL_DATABASE: security
-    ports:
-      - "3306:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 2s
+      retries: 10
   myapp:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "8088:8088"
+    image: security-app:latest
+    network_mode: host
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy

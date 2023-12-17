@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@CrossOrigin
 @RequestMapping("/api/security")
 public class AuthController {
 
@@ -19,11 +20,16 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> createAuthToken(@RequestBody JwtRequest authRequest) {
-        return jwtService.createAuthToken(authRequest);
+        return jwtService.getToken(authRequest);
     }
 
     @PostMapping("/register")
     public void createNewUser(@RequestBody UserRegistration userRegistration) {
         userService.save(userRegistration);
+    }
+
+    @PostMapping("/update-token")
+    public ResponseEntity<?> updateAccessToken(@RequestBody String username) {
+        return jwtService.accessToken(username);
     }
 }

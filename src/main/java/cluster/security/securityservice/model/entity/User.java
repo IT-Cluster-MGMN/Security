@@ -11,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EqualsAndHashCode(exclude = {"authority", "userInfo"})
+@EqualsAndHashCode(exclude = {"authority", "userInfo", "refreshToken"})
 public class User {
 
     @Id
@@ -26,4 +26,8 @@ public class User {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "username", referencedColumnName = "username")
     private UserInfo userInfo;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "username", referencedColumnName = "username")
+    private RefreshToken refreshToken;
 }
