@@ -1,0 +1,17 @@
+name: Docker Image CI
+
+on:  workflow_dispatch
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup Java JDK
+      uses: actions/setup-java@v4.0.0
+      with:
+        distribution: 'adopt-hotspot'
+        java-version: '17'      
+    - name: Build the Java Jav
+      run: mvn install
