@@ -2,7 +2,7 @@ version: '3'
 services:
   mysql:
     image: mysql
-    network_mode: host
+#    network_mode: host
     ports:
       - "3306:3306"
     environment:
@@ -14,7 +14,7 @@ services:
       retries: 10
   myapp:
     image: security-app:latest
-    network_mode: host
+#    network_mode: host
     ports:
       - "8088:8088"
     depends_on:
