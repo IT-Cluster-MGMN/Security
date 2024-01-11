@@ -28,8 +28,10 @@ public class AuthController {
         userService.save(userRegistration);
     }
 
-    @PostMapping("/update-token")
-    public ResponseEntity<?> updateAccessToken(@RequestBody String username) {
-        return jwtService.accessToken(username);
-    }
+
+
+//    @PostMapping("/update-token")
+//    public ResponseEntity<?> updateAccessToken(@RequestBody String username) {
+//        return jwtService.accessToken(username);
+//    }
 }

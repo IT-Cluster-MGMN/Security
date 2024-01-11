@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/data")
-public class UserController {
+public class UserControllerTest {
 
     private final UserService userService;
     private final JwtGeneration jwtGeneration;

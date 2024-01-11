@@ -3,11 +3,12 @@ package cluster.security.securityservice.service;
 
 import cluster.security.securityservice.model.dtos.AuthError;
 import cluster.security.securityservice.model.dtos.JwtRequest;
+import cluster.security.securityservice.model.dtos.JwtResponse;
 import cluster.security.securityservice.model.entity.RefreshToken;
 import cluster.security.securityservice.service.token.AccessTokenService;
 import cluster.security.securityservice.service.token.RefreshTokenService;
 import cluster.security.securityservice.service.token.JwtGeneration;
-import cluster.security.securityservice.config.AccessRsaKeyConfig;
+import cluster.security.securityservice.config.keys.AccessRsaKeyConfig;
 import cluster.security.securityservice.util.KeyType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -49,20 +50,22 @@ public class JwtService {
                     System.currentTimeMillis()),
                     HttpStatus.UNAUTHORIZED);
         }
-
-        if (jwtGeneration.isTokenExpired(refreshTokenService.findById(authRequest.getUsername()).getToken())) {
-            final UserDetails userDetails = userService.loadUserByUsername(authRequest.getUsername());
-            final String token = jwtGeneration.generateToken(userDetails, KeyType.REFRESH);
-            final RefreshToken refreshToken = RefreshToken.builder()
-                    .username(userDetails.getUsername())
-                    .token(token)
-                    .build();
-            updateOrCreateRefreshToken(refreshToken);
-
-            return ResponseEntity.ok(accessTokenService.generateAccessFromRefresh(token));
-        }
-
-        return accessToken(authRequest.getUsername());
+//
+//        if (jwtGeneration.isTokenExpired(refreshTokenService.findById(authRequest.getUsername()).getToken())) {
+//            final UserDetails userDetails = userService.loadUserByUsername(authRequest.getUsername());
+//            final String token = jwtGeneration.generateToken(userDetails, KeyType.REFRESH);
+//            final RefreshToken refreshToken = RefreshToken.builder()
+//                    .username(userDetails.getUsername())
+//                    .token(token)
+//                    .build();
+//            updateOrCreateRefreshToken(refreshToken);
+//
+//            return ResponseEntity.ok(accessTokenService.generateAccessFromRefresh(token));
+//        }
+//
+//        return accessToken(authRequest.getUsername());
+        return ResponseEntity.ok(new JwtResponse(jwtGeneration.generateToken(
+                userService.loadUserByUsername(authRequest.getUsername()), KeyType.ACCESS)));
     }
 
     public ResponseEntity<?> accessToken(String username) {

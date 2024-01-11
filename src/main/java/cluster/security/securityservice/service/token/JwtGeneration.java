@@ -1,8 +1,8 @@
 package cluster.security.securityservice.service.token;
 
 
-import cluster.security.securityservice.config.AccessRsaKeyConfig;
-import cluster.security.securityservice.config.RefreshRsaKeyConfig;
+import cluster.security.securityservice.config.keys.AccessRsaKeyConfig;
+import cluster.security.securityservice.config.keys.RefreshRsaKeyConfig;
 import cluster.security.securityservice.util.KeyType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.security.PublicKey;
 import java.time.Duration;
 import java.util.*;
+
 
 @Component
 @RequiredArgsConstructor
@@ -33,7 +34,7 @@ public class JwtGeneration {
 
         Date issuedDate = new Date();
 //        Duration lifetime = (keyType == KeyType.ACCESS) ? Duration.ofHours(1) : Duration.ofDays(7);
-        Duration lifetime = (keyType == KeyType.ACCESS) ? Duration.ofSeconds(15) : Duration.ofDays(7);
+        Duration lifetime = (keyType == KeyType.ACCESS) ? Duration.ofSeconds(120) : Duration.ofDays(7);
         Date expiredDate = new Date(issuedDate.getTime() + lifetime.toMillis());
 
         return Jwts.builder()

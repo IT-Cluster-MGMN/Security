@@ -1,7 +1,7 @@
 package cluster.security.securityservice;
 
-import cluster.security.securityservice.config.AccessRsaKeyConfig;
-import cluster.security.securityservice.config.RefreshRsaKeyConfig;
+import cluster.security.securityservice.config.keys.AccessRsaKeyConfig;
+import cluster.security.securityservice.config.keys.RefreshRsaKeyConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

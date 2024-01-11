@@ -1,4 +1,4 @@
-package cluster.security.securityservice.config;
+package cluster.security.securityservice.config.keys;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

@@ -32,6 +32,13 @@ CREATE TABLE IF NOT EXISTS user_info (
 );
 
 
+CREATE TABLE IF NOT EXISTS refresh_token (
+    `username`		VARCHAR(50) PRIMARY KEY,
+    `token`		    TEXT,
+    FOREIGN KEY(`username`) REFERENCES users(`username`)
+);
+
+
 INSERT INTO `users`(username, `password`, enabled)
 VALUES
     ('bob@gmail.com', '12345678', 1),
