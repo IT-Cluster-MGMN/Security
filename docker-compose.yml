@@ -15,7 +15,7 @@ services:
       retries: 10
 
   security:
-    image: security-app:latest
+    image: nazariybrynyarskiy/security-app:latest
 #    network_mode: host
     ports:
       - "8088:8088"
@@ -24,7 +24,7 @@ services:
         condition: service_healthy
 
   gateway:
-    image: gateway-app:latest
+    image: nazariybrynyarskiy/gateway-app:latest
     #    network_mode: host
     ports:
       - "8000:8000"
@@ -43,7 +43,7 @@ services:
       retries: 10
 
   product:
-    image: product-app:latest
+    image: nazariybrynyarskiy/product-app:latest
     #    network_mode: host
     ports:
       - "8090:8090"
