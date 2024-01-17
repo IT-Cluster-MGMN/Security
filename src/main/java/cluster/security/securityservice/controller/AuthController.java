@@ -1,6 +1,7 @@
 package cluster.security.securityservice.controller;
 
 
+import cluster.security.securityservice.model.dtos.JwtResponse;
 import cluster.security.securityservice.model.dtos.UserRegistration;
 import cluster.security.securityservice.model.dtos.JwtRequest;
 import cluster.security.securityservice.service.JwtService;
@@ -20,7 +21,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> createAuthToken(@RequestBody JwtRequest authRequest) {
-        return jwtService.getToken(authRequest);
+        return jwtService.getAllTokens(authRequest);
     }
 
     @PostMapping("/register")
@@ -28,10 +29,4 @@ public class AuthController {
         userService.save(userRegistration);
     }
 
-
-
-//    @PostMapping("/update-token")
-//    public ResponseEntity<?> updateAccessToken(@RequestBody String username) {
-//        return jwtService.accessToken(username);
-//    }
 }

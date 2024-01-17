@@ -1,43 +1,55 @@
 package cluster.security.securityservice.service.token;
 
 
+import cluster.security.securityservice.config.keys.AccessRsaKeyConfig;
+import cluster.security.securityservice.config.keys.RefreshRsaKeyConfig;
 import cluster.security.securityservice.dao.AuthorityJpaRepo;
-import cluster.security.securityservice.model.dtos.JwtResponse;
 import cluster.security.securityservice.service.UserService;
 import cluster.security.securityservice.util.KeyType;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
-public class AccessTokenService {
+public class AccessTokenService extends JwtHelper implements JwtGeneration {
 
     private final UserService userService;
-    private final JwtGeneration tokenUtils;
     private final AuthorityJpaRepo authorityJpaRepo;
 
-    public JwtResponse generateAccessFromRefresh(String refreshToken) {
-        if (!tokenUtils.isTokenExpired(refreshToken)) {
-            final String username = tokenUtils.getAllClaimsFromToken(refreshToken).getSubject();
-            final String role = tokenUtils.getAllClaimsFromToken(refreshToken)
-                    .get("authority", String.class);
-
-            if (authorityJpaRepo.findById(username).isPresent()) {
-                if (!role.equals(authorityJpaRepo.findById(username).get().getAuthority())) {
-                    return null;
-                }
-            } else {
-                return null;
-            }
-
-            final UserDetails userDetails = userService.loadUserByUsername(username);
-            final String accessToken = tokenUtils.generateToken(userDetails, KeyType.ACCESS);
-            System.out.println(accessToken);
-
-            return new JwtResponse(accessToken);
-        }
-        return null;
+    public AccessTokenService(AccessRsaKeyConfig accessRsaKeyConfig,
+                              RefreshRsaKeyConfig refreshRsaKeyConfig,
+                              UserService userService,
+                              AuthorityJpaRepo authorityJpaRepo) {
+        super(accessRsaKeyConfig, refreshRsaKeyConfig);
+        this.userService = userService;
+        this.authorityJpaRepo = authorityJpaRepo;
     }
 
+
+    public String generateAccessFromRefresh(String refreshToken) {
+        if (isTokenExpired(refreshToken)) {
+            return null;
+        }
+
+        final String username = getAllClaimsFromToken(refreshToken).getSubject();
+
+        if (authorityJpaRepo.findById(username).isEmpty()) {
+            return null;
+        }
+
+        final String roleFromClaims = getAllClaimsFromToken(refreshToken).get("authority", String.class);
+        final String roleFromDB = authorityJpaRepo.findById(username).get().getAuthority();
+
+        if (!roleFromClaims.equals(roleFromDB)) {
+            return null;
+        }
+
+        final UserDetails userDetails = userService.loadUserByUsername(username);
+
+        return generateToken(userDetails);
+    }
+
+    @Override
+    public String generateToken(UserDetails userDetails) {
+        return super.generateToken(userDetails, KeyType.ACCESS);
+    }
 }

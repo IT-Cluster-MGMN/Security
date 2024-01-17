@@ -4,12 +4,11 @@ package cluster.security.securityservice.service;
 import cluster.security.securityservice.model.dtos.AuthError;
 import cluster.security.securityservice.model.dtos.JwtRequest;
 import cluster.security.securityservice.model.dtos.JwtResponse;
-import cluster.security.securityservice.model.entity.RefreshToken;
 import cluster.security.securityservice.service.token.AccessTokenService;
-import cluster.security.securityservice.service.token.RefreshTokenService;
 import cluster.security.securityservice.service.token.JwtGeneration;
 import cluster.security.securityservice.config.keys.AccessRsaKeyConfig;
-import cluster.security.securityservice.util.KeyType;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,59 +25,66 @@ import java.util.Base64;
 @RequiredArgsConstructor
 public class JwtService {
 
-    private final UserService userService;
-    private final JwtGeneration jwtGeneration;
-    private final AccessRsaKeyConfig keyUtils;
-    private final AccessTokenService accessTokenService;
-    private final RefreshTokenService refreshTokenService;
     private final AuthenticationManager authenticationManager;
+    private final AccessTokenService updateAccessToken;
+    private final JwtGeneration refreshTokenService;
+    private final JwtGeneration accessTokenService;
+    private final AccessRsaKeyConfig keyUtils;
+    private final UserService userService;
 
 
-    public ResponseEntity<?> getPublicKey() {
-        return ResponseEntity.ok(Base64.getEncoder().encodeToString(keyUtils.publicKey().getEncoded()));
-    }
-
-    public ResponseEntity<?> getToken(JwtRequest authRequest) {
+    public ResponseEntity<?> getAllTokens(JwtRequest authRequest) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     authRequest.getUsername(),
                     authRequest.getPassword()));
         } catch (BadCredentialsException e) {
-            return new ResponseEntity<>(new AuthError(
-                    HttpStatus.UNAUTHORIZED.value(),
-                    "Wrong username or password",
-                    System.currentTimeMillis()),
-                    HttpStatus.UNAUTHORIZED);
+            return authExceptionBody();
         }
-//
-//        if (jwtGeneration.isTokenExpired(refreshTokenService.findById(authRequest.getUsername()).getToken())) {
-//            final UserDetails userDetails = userService.loadUserByUsername(authRequest.getUsername());
-//            final String token = jwtGeneration.generateToken(userDetails, KeyType.REFRESH);
-//            final RefreshToken refreshToken = RefreshToken.builder()
-//                    .username(userDetails.getUsername())
-//                    .token(token)
-//                    .build();
-//            updateOrCreateRefreshToken(refreshToken);
-//
-//            return ResponseEntity.ok(accessTokenService.generateAccessFromRefresh(token));
-//        }
-//
-//        return accessToken(authRequest.getUsername());
-        return ResponseEntity.ok(new JwtResponse(jwtGeneration.generateToken(
-                userService.loadUserByUsername(authRequest.getUsername()), KeyType.ACCESS)));
+
+        return ResponseEntity.ok(
+                new JwtResponse(accessToken(authRequest),
+                                refreshToken(authRequest)));
     }
 
-    public ResponseEntity<?> accessToken(String username) {
-        final String token = refreshTokenService.findById(username).getToken();
-
-        return ResponseEntity.ok(accessTokenService.generateAccessFromRefresh(token));
+    public ResponseEntity<?> updateAccessToken(String refreshToken) {
+        return (updateAccessToken.isTokenExpired(refreshToken))
+                ? refreshTokenExceptionBody()
+                : ResponseEntity.ok(new AccessTokenResponse(updateAccessToken.generateAccessFromRefresh(refreshToken)));
     }
 
-    private void updateOrCreateRefreshToken(RefreshToken refreshToken) {
-        boolean isUpdated = refreshTokenService.update(refreshToken);
-        if (!isUpdated) {
-            refreshTokenService.save(refreshToken);
-        }
+    public ResponseEntity<?> getPublicKey() {
+        return ResponseEntity.ok(Base64.getEncoder().encodeToString(keyUtils.publicKey().getEncoded()));
     }
 
+    private String accessToken(JwtRequest authRequest) {
+        return accessTokenService.generateToken(getUserDetailsFromJwtRequest(authRequest));
+    }
+
+    private String refreshToken(JwtRequest authRequest) {
+        return refreshTokenService.generateToken(getUserDetailsFromJwtRequest(authRequest));
+    }
+
+    private UserDetails getUserDetailsFromJwtRequest(JwtRequest authRequest) {
+        return userService.loadUserByUsername(authRequest.getUsername());
+    }
+
+    private ResponseEntity<?> authExceptionBody() {
+        return new ResponseEntity<>(new AuthError(
+                HttpStatus.UNAUTHORIZED.value(),
+                "Wrong username or password",
+                System.currentTimeMillis()),
+                HttpStatus.UNAUTHORIZED);
+    }
+
+    private ResponseEntity<?> refreshTokenExceptionBody() {
+        return new ResponseEntity<>(new AuthError(
+                HttpStatus.BAD_REQUEST.value(),
+                "Refresh token is expired or invalid",
+                System.currentTimeMillis()),
+                HttpStatus.BAD_REQUEST);
+    }
+
+
+    private record AccessTokenResponse(String accessToken) {}
 }

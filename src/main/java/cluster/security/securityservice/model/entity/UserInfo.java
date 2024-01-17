@@ -18,6 +18,5 @@ public class UserInfo {
     private String username;
     private String name;
     private String surname;
-    private String patronymic;
     private String number;
 }

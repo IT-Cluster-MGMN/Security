@@ -4,9 +4,7 @@ package cluster.security.securityservice.service;
 import cluster.security.securityservice.dao.UserJpaRepo;
 import cluster.security.securityservice.exception.UsernameException;
 import cluster.security.securityservice.model.dtos.UserRegistration;
-import cluster.security.securityservice.model.entity.RefreshToken;
 import cluster.security.securityservice.model.entity.User;
-import cluster.security.securityservice.service.token.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,7 +26,6 @@ public class UserService implements UserDetailsService {
     private final UserInfoService userInfoService;
     private final PasswordEncoder passwordEncoder;
     private final AuthorityService authorityService;
-    private final RefreshTokenService refreshTokenService;
 
     /**
      * Implements authentication by retrieving user data from the database and comparing it with the user's input.
@@ -63,8 +60,6 @@ public class UserService implements UserDetailsService {
             userJpaRepo.save(userRegistration.getUser());
             authorityService.saveAuthority(userRegistration.getAuthority());
             userInfoService.saveUserInfo(userRegistration.getUserInfo());
-            refreshTokenService.save(new RefreshToken(
-                    userRegistration.getUser().getUsername(), "xxx.yyy.zzz"));
         } else {
             throw new UsernameException(
                     String.format("User with username '%s' already exists", userRegistration.getUser().getUsername()));

@@ -19,7 +19,6 @@ public class UserRegistration {
 
     public UserRegistration(@Size(min = 1, max = 20) String name,
                             @Size(min = 1, max = 20) String surname,
-                            @Size(min = 1, max = 20) String patronymic,
                             @Size(min = 10, max = 12) String number,
                             @Pattern(regexp="^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$")
                             @Size(min = 3, max = 50) String username,
@@ -39,7 +38,6 @@ public class UserRegistration {
                 .username(username)
                 .name(name)
                 .surname(surname)
-                .patronymic(patronymic)
                 .number(number)
                 .build();
     }
