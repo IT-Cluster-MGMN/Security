@@ -1,10 +1,13 @@
 package cluster.security.securityservice.controller;
 
 import cluster.security.securityservice.service.JwtService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 
 @RestController
@@ -20,10 +23,9 @@ public class JwtController {
     }
 
     @PostMapping("/update-token")
-    public ResponseEntity<?> updateAccessToken(@RequestBody RefreshTokenRequest refreshTokenRequest) {
-        return jwtService.updateAccessToken(refreshTokenRequest.refreshToken());
+    public ResponseEntity<?> updateAccessToken(@RequestBody Map<String, String> requestBody) {
+        String refreshToken = requestBody.get("refreshToken");
+        return ResponseEntity.ok(jwtService.updateAccessToken(refreshToken));
     }
 
-
-    private record RefreshTokenRequest(String refreshToken) {}
 }

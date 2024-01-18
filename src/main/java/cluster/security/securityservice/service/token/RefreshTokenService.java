@@ -3,7 +3,9 @@ package cluster.security.securityservice.service.token;
 
 import cluster.security.securityservice.config.keys.AccessRsaKeyConfig;
 import cluster.security.securityservice.config.keys.RefreshRsaKeyConfig;
-import cluster.security.securityservice.util.KeyType;
+import cluster.security.securityservice.model.dtos.JwtRequest;
+import cluster.security.securityservice.util.TokenType;
+import io.jsonwebtoken.Claims;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -15,9 +17,9 @@ public class RefreshTokenService extends JwtHelper implements JwtGeneration {
         super(accessRsaKeyConfig, refreshRsaKeyConfig);
     }
 
-
     @Override
     public String generateToken(UserDetails userDetails) {
-        return super.generateToken(userDetails, KeyType.REFRESH);
+        return super.generateToken(userDetails, TokenType.REFRESH);
     }
+
 }

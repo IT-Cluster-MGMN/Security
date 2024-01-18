@@ -1,6 +1,6 @@
 package cluster.security.securityservice.util;
 
-public enum KeyType {
+public enum TokenType {
     ACCESS,
     REFRESH
 }

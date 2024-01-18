@@ -7,8 +7,10 @@ import cluster.security.securityservice.model.dtos.JwtResponse;
 import cluster.security.securityservice.service.token.AccessTokenService;
 import cluster.security.securityservice.service.token.JwtGeneration;
 import cluster.security.securityservice.config.keys.AccessRsaKeyConfig;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import cluster.security.securityservice.service.token.RefreshTokenService;
+import cluster.security.securityservice.util.TokenType;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +35,8 @@ public class JwtService {
     private final UserService userService;
 
 
-    public ResponseEntity<?> getAllTokens(JwtRequest authRequest) {
+    public ResponseEntity<?> getAccessTokenAndSetAllTokens(JwtRequest authRequest,
+                                                           HttpServletResponse response) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     authRequest.getUsername(),
@@ -42,19 +45,42 @@ public class JwtService {
             return authExceptionBody();
         }
 
+        response.addCookie(configuredCookie(authRequest, TokenType.ACCESS));
+        response.addCookie(configuredCookie(authRequest, TokenType.REFRESH));
+
         return ResponseEntity.ok(
-                new JwtResponse(accessToken(authRequest),
-                                refreshToken(authRequest)));
+                new JwtResponse(accessToken(authRequest)));
     }
 
-    public ResponseEntity<?> updateAccessToken(String refreshToken) {
-        return (updateAccessToken.isTokenExpired(refreshToken))
-                ? refreshTokenExceptionBody()
-                : ResponseEntity.ok(new AccessTokenResponse(updateAccessToken.generateAccessFromRefresh(refreshToken)));
+    public String updateAccessToken(String refreshToken) {
+        if (refreshToken == null) {
+            return null;
+        }
+        if (updateAccessToken.isTokenExpired(refreshToken)) {
+            return null;
+        }
+
+        return updateAccessToken.generateAccessFromRefresh(refreshToken);
     }
 
     public ResponseEntity<?> getPublicKey() {
         return ResponseEntity.ok(Base64.getEncoder().encodeToString(keyUtils.publicKey().getEncoded()));
+    }
+
+    private Cookie configuredCookie(JwtRequest authRequest, TokenType tokenType) {
+        String tokenKey = "accessToken";
+        String tokenValue = accessToken(authRequest);
+
+        final Cookie cookie = new Cookie(tokenKey, tokenValue);
+        cookie.setMaxAge(22_000);
+
+        if (tokenType == TokenType.REFRESH) {
+            cookie.setAttribute("refreshToken", refreshToken(authRequest));
+            cookie.setHttpOnly(true);
+            cookie.setMaxAge(605_000);
+        }
+
+        return cookie;
     }
 
     private String accessToken(JwtRequest authRequest) {

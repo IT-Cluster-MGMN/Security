@@ -3,7 +3,7 @@ package cluster.security.securityservice.service.token;
 
 import cluster.security.securityservice.config.keys.AccessRsaKeyConfig;
 import cluster.security.securityservice.config.keys.RefreshRsaKeyConfig;
-import cluster.security.securityservice.util.KeyType;
+import cluster.security.securityservice.util.TokenType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public abstract class JwtHelper {
     private final RefreshRsaKeyConfig refreshRsaKeyConfig;
 
 
-    protected String generateToken(UserDetails userDetails, KeyType keyType) {
+    protected String generateToken(UserDetails userDetails, TokenType tokenType) {
         Map<String, Object> claims = new HashMap<>();
         List<String> rolesList = userDetails.getAuthorities()
                 .stream()
@@ -34,7 +34,8 @@ public abstract class JwtHelper {
 
         Date issuedDate = new Date();
 
-        Duration lifetime = (keyType == KeyType.ACCESS) ? Duration.ofSeconds(120) : Duration.ofDays(7);
+        Duration lifetime = (tokenType == TokenType.ACCESS) ? Duration.ofHours(6) : Duration.ofDays(7);
+//        Duration lifetime = (tokenType == TokenType.ACCESS) ? Duration.ofSeconds(120) : Duration.ofSeconds(200);
         Date expiredDate = new Date(issuedDate.getTime() + lifetime.toMillis());
 
         return Jwts.builder()
@@ -42,7 +43,7 @@ public abstract class JwtHelper {
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(issuedDate)
                 .setExpiration(expiredDate)
-                .signWith((keyType == KeyType.ACCESS)
+                .signWith((tokenType == TokenType.ACCESS)
                         ? accessRsaKeyConfig.privateKey()
                         : refreshRsaKeyConfig.privateKey())
                 .compact();

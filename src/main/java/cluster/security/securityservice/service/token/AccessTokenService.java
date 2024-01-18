@@ -5,7 +5,7 @@ import cluster.security.securityservice.config.keys.AccessRsaKeyConfig;
 import cluster.security.securityservice.config.keys.RefreshRsaKeyConfig;
 import cluster.security.securityservice.dao.AuthorityJpaRepo;
 import cluster.security.securityservice.service.UserService;
-import cluster.security.securityservice.util.KeyType;
+import cluster.security.securityservice.util.TokenType;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -50,6 +50,6 @@ public class AccessTokenService extends JwtHelper implements JwtGeneration {
 
     @Override
     public String generateToken(UserDetails userDetails) {
-        return super.generateToken(userDetails, KeyType.ACCESS);
+        return super.generateToken(userDetails, TokenType.ACCESS);
     }
 }
