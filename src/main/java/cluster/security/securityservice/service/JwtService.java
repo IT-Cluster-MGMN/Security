@@ -13,6 +13,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -44,12 +45,13 @@ public class JwtService {
         } catch (BadCredentialsException e) {
             return authExceptionBody();
         }
+        final String accessToken = accessToken(authRequest);
 
-        response.addCookie(configuredCookie(authRequest, TokenType.ACCESS));
-        response.addCookie(configuredCookie(authRequest, TokenType.REFRESH));
+        response.addHeader("Set-Cookie", configuredCookie(authRequest, TokenType.ACCESS).toString());
+        response.addHeader("Set-Cookie", configuredCookie(authRequest, TokenType.REFRESH).toString());
 
         return ResponseEntity.ok(
-                new JwtResponse(accessToken(authRequest)));
+                new JwtResponse(accessToken));
     }
 
     public String updateAccessToken(String refreshToken) {
@@ -67,20 +69,27 @@ public class JwtService {
         return ResponseEntity.ok(Base64.getEncoder().encodeToString(keyUtils.publicKey().getEncoded()));
     }
 
-    private Cookie configuredCookie(JwtRequest authRequest, TokenType tokenType) {
-        String tokenKey = "accessToken";
-        String tokenValue = accessToken(authRequest);
-
-        final Cookie cookie = new Cookie(tokenKey, tokenValue);
-        cookie.setMaxAge(22_000);
+    private ResponseCookie configuredCookie(JwtRequest authRequest, TokenType tokenType) {
+        String cookieName = "accessToken";
+        String cookieValue = accessToken(authRequest);
+        boolean httpOnly = false;
+        int maxAge = 22_000;
 
         if (tokenType == TokenType.REFRESH) {
-            cookie.setAttribute("refreshToken", refreshToken(authRequest));
-            cookie.setHttpOnly(true);
-            cookie.setMaxAge(605_000);
+            cookieName = "refreshToken";
+            cookieValue = refreshToken(authRequest);
+            httpOnly = true;
+            maxAge = 605_000;
         }
+        ResponseCookie responseCookie = ResponseCookie.from(cookieName, cookieValue)
+                .httpOnly(httpOnly)
+                .sameSite("None")
+                .secure(true)
+                .path("/")
+                .maxAge(maxAge)
+                .build();
 
-        return cookie;
+        return responseCookie;
     }
 
     private String accessToken(JwtRequest authRequest) {
