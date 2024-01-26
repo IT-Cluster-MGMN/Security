@@ -27,7 +27,7 @@ public class AccessTokenService extends JwtHelper implements JwtGeneration {
 
 
     public String generateAccessFromRefresh(String refreshToken) {
-        if (isTokenExpired(refreshToken)) {
+        if (isTokenExpired(refreshToken, TokenType.REFRESH)) {
             return null;
         }
 
@@ -56,7 +56,10 @@ public class AccessTokenService extends JwtHelper implements JwtGeneration {
 
     public String getUsernameFromToken(String token) {
         final Claims claims = getAllClaimsFromToken(token, TokenType.ACCESS);
+        final String username = claims.getSubject();
 
-        return claims.getSubject();
+        return (!isTokenExpired(token, TokenType.ACCESS) && userService.findByUsername(username).isPresent())
+                ? username
+                : "Token expired";
     }
 }

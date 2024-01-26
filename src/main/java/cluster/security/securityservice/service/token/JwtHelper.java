@@ -55,9 +55,11 @@ public abstract class JwtHelper {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
     }
 
-    public boolean isTokenExpired(String token) {
+    public boolean isTokenExpired(String token, TokenType tokenType) {
         try {
-            return this.getAllClaimsFromToken(token, TokenType.REFRESH).getExpiration().before(new Date());
+            return (tokenType == TokenType.ACCESS)
+                    ? this.getAllClaimsFromToken(token, TokenType.ACCESS).getExpiration().before(new Date())
+                    : this.getAllClaimsFromToken(token, TokenType.REFRESH).getExpiration().before(new Date());
         } catch (Exception e) {
             e.printStackTrace();
             return true;

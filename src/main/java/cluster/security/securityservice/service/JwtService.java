@@ -55,7 +55,7 @@ public class JwtService {
         if (refreshToken == null)
             return null;
 
-        if (tokenService.isTokenExpired(refreshToken))
+        if (tokenService.isTokenExpired(refreshToken, TokenType.REFRESH))
             return null;
 
         return tokenService.generateAccessFromRefresh(refreshToken);
