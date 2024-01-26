@@ -35,7 +35,6 @@ public abstract class JwtHelper {
         Date issuedDate = new Date();
 
         Duration lifetime = (tokenType == TokenType.ACCESS) ? Duration.ofHours(6) : Duration.ofDays(7);
-//        Duration lifetime = (tokenType == TokenType.ACCESS) ? Duration.ofSeconds(120) : Duration.ofSeconds(200);
         Date expiredDate = new Date(issuedDate.getTime() + lifetime.toMillis());
 
         return Jwts.builder()
@@ -49,14 +48,16 @@ public abstract class JwtHelper {
                 .compact();
     }
 
-    protected Claims getAllClaimsFromToken(String token) {
-        final PublicKey key = refreshRsaKeyConfig.publicKey();
+    protected Claims getAllClaimsFromToken(String token, TokenType tokenType) {
+        final PublicKey key = (tokenType == TokenType.ACCESS)
+                ? accessRsaKeyConfig.publicKey()
+                : refreshRsaKeyConfig.publicKey();
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
     }
 
     public boolean isTokenExpired(String token) {
         try {
-            return this.getAllClaimsFromToken(token).getExpiration().before(new Date());
+            return this.getAllClaimsFromToken(token, TokenType.REFRESH).getExpiration().before(new Date());
         } catch (Exception e) {
             e.printStackTrace();
             return true;

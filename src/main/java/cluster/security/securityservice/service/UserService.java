@@ -5,7 +5,9 @@ import cluster.security.securityservice.dao.UserJpaRepo;
 import cluster.security.securityservice.exception.UsernameException;
 import cluster.security.securityservice.model.dtos.UserRegistration;
 import cluster.security.securityservice.model.entity.User;
+import cluster.security.securityservice.service.token.AccessTokenService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -23,7 +25,6 @@ import java.util.Optional;
 public class UserService implements UserDetailsService {
 
     private final UserJpaRepo userJpaRepo;
-    private final UserInfoService userInfoService;
     private final PasswordEncoder passwordEncoder;
     private final AuthorityService authorityService;
 
@@ -59,7 +60,6 @@ public class UserService implements UserDetailsService {
 
             userJpaRepo.save(userRegistration.getUser());
             authorityService.saveAuthority(userRegistration.getAuthority());
-            userInfoService.saveUserInfo(userRegistration.getUserInfo());
         } else {
             throw new UsernameException(
                     String.format("User with username '%s' already exists", userRegistration.getUser().getUsername()));
@@ -79,4 +79,5 @@ public class UserService implements UserDetailsService {
     public List<User> findAll() {
         return userJpaRepo.findAll();
     }
+
 }

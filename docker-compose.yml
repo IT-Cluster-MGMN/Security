@@ -51,6 +51,29 @@ services:
       mysql-product:
         condition: service_healthy
 
+  mysql-profile:
+    image: mysql
+    #    network_mode: host
+    ports:
+      - "3308:3308"
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: profileservice
+      MYSQL_TCP_PORT: 3308
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 2s
+      retries: 10
+
+  profile:
+    image: nazariybrynyarskiy/profile-app:latest
+    #    network_mode: host
+    ports:
+      - "8087:8087"
+    depends_on:
+      mysql-profile:
+        condition: service_healthy
+
 networks:
   default:
     external:

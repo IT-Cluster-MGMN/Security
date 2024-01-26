@@ -22,23 +22,6 @@ CREATE TABLE IF NOT EXISTS authorities (
 );
 
 
-CREATE TABLE IF NOT EXISTS user_info (
-    `username`		VARCHAR(50) PRIMARY KEY,
-    `name`			VARCHAR(20),
-    `surname`		VARCHAR(20),
-    `patronymic`	VARCHAR(20),
-    `number`		VARCHAR(12),
-    FOREIGN KEY(`username`) REFERENCES users(`username`)
-);
-
-
-CREATE TABLE IF NOT EXISTS refresh_token (
-    `username`		VARCHAR(50) PRIMARY KEY,
-    `token`		    TEXT,
-    FOREIGN KEY(`username`) REFERENCES users(`username`)
-);
-
-
 INSERT INTO `users`(username, `password`, enabled)
 VALUES
     ('bob@gmail.com', '12345678', 1),
@@ -50,8 +33,3 @@ VALUES
     ('bob@gmail.com', 'ROLE_USER'),
     ('sam@gmail.com', 'ROLE_MANAGER');
 
-
-INSERT INTO `user_info`(`username`,`name`, surname, patronymic, `number`)
-VALUES
-    ('bob@gmail.com', 'Bob', 'Smith', 'Jackson', '380975246691'),
-    ('sam@gmail.com', 'Sam', 'Brown', 'Johnson', '380947347396');

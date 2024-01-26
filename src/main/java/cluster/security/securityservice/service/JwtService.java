@@ -4,12 +4,13 @@ package cluster.security.securityservice.service;
 import cluster.security.securityservice.model.dtos.AuthError;
 import cluster.security.securityservice.model.dtos.JwtRequest;
 import cluster.security.securityservice.model.dtos.JwtResponse;
+import cluster.security.securityservice.model.dtos.UsernameResponse;
 import cluster.security.securityservice.service.token.AccessTokenService;
 import cluster.security.securityservice.service.token.JwtGeneration;
 import cluster.security.securityservice.config.keys.AccessRsaKeyConfig;
-import cluster.security.securityservice.service.token.RefreshTokenService;
 import cluster.security.securityservice.util.TokenType;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,45 +29,68 @@ import java.util.Base64;
 @RequiredArgsConstructor
 public class JwtService {
 
-    private final AuthenticationManager authenticationManager;
-    private final AccessTokenService updateAccessToken;
-    private final JwtGeneration refreshTokenService;
-    private final JwtGeneration accessTokenService;
-    private final AccessRsaKeyConfig keyUtils;
     private final UserService userService;
+    private final AccessRsaKeyConfig keyUtils;
+    private final AccessTokenService tokenService;
+    private final JwtGeneration accessTokenService;
+    private final JwtGeneration refreshTokenService;
+    private final AuthenticationManager authenticationManager;
 
 
-    public ResponseEntity<?> getAccessTokenAndSetAllTokens(JwtRequest authRequest,
-                                                           HttpServletResponse response) {
+    public ResponseEntity<?> getAccessTokenAndSetAllTokens(JwtRequest authRequest, HttpServletResponse response) {
         try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                    authRequest.getUsername(),
-                    authRequest.getPassword()));
+            authenticateUserFromRequest(authRequest);
         } catch (BadCredentialsException e) {
             return authExceptionBody();
         }
-        final String accessToken = accessToken(authRequest);
 
         response.addHeader("Set-Cookie", configuredCookie(authRequest, TokenType.ACCESS).toString());
         response.addHeader("Set-Cookie", configuredCookie(authRequest, TokenType.REFRESH).toString());
 
         return ResponseEntity.ok(
-                new JwtResponse(accessToken));
+                new JwtResponse(accessToken(authRequest)));
     }
 
-    public String updateAccessToken(String refreshToken) {
-        if (refreshToken == null) {
+    public String updatedAccessToken(String refreshToken) {
+        if (refreshToken == null)
             return null;
-        }
-        if (updateAccessToken.isTokenExpired(refreshToken)) {
-            return null;
-        }
 
-        return updateAccessToken.generateAccessFromRefresh(refreshToken);
+        if (tokenService.isTokenExpired(refreshToken))
+            return null;
+
+        return tokenService.generateAccessFromRefresh(refreshToken);
     }
 
     public ResponseEntity<?> getPublicKey() {
         return ResponseEntity.ok(Base64.getEncoder().encodeToString(keyUtils.publicKey().getEncoded()));
+    }
+
+    public ResponseEntity<?> getUsernameFromToken(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        String token = null;
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("accessToken".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+
+        }
+        if (token == null || token.isEmpty()) {
+            return ResponseEntity.badRequest().body("Access token not found in cookies");
+        }
+        String username = tokenService.getUsernameFromToken(token);
+
+        return ResponseEntity.ok(new UsernameResponse(username));
+    }
+
+
+    private void authenticateUserFromRequest(JwtRequest authRequest) {
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                authRequest.getUsername(),
+                authRequest.getPassword()));
     }
 
     private ResponseCookie configuredCookie(JwtRequest authRequest, TokenType tokenType) {
@@ -81,15 +105,14 @@ public class JwtService {
             httpOnly = true;
             maxAge = 605_000;
         }
-        ResponseCookie responseCookie = ResponseCookie.from(cookieName, cookieValue)
+
+        return ResponseCookie.from(cookieName, cookieValue)
                 .httpOnly(httpOnly)
                 .sameSite("None")
                 .secure(true)
                 .path("/")
                 .maxAge(maxAge)
                 .build();
-
-        return responseCookie;
     }
 
     private String accessToken(JwtRequest authRequest) {
@@ -111,15 +134,4 @@ public class JwtService {
                 System.currentTimeMillis()),
                 HttpStatus.UNAUTHORIZED);
     }
-
-    private ResponseEntity<?> refreshTokenExceptionBody() {
-        return new ResponseEntity<>(new AuthError(
-                HttpStatus.BAD_REQUEST.value(),
-                "Refresh token is expired or invalid",
-                System.currentTimeMillis()),
-                HttpStatus.BAD_REQUEST);
-    }
-
-
-    private record AccessTokenResponse(String accessToken) {}
 }
