@@ -1,8 +1,11 @@
-package cluster.security.securityservice.service.token;
+package cluster.security.securityservice.service.impl.token;
 
 
 import cluster.security.securityservice.config.keys.AccessRsaKeyConfig;
 import cluster.security.securityservice.config.keys.RefreshRsaKeyConfig;
+import cluster.security.securityservice.dao.UserJpaRepo;
+import cluster.security.securityservice.model.entity.User;
+import cluster.security.securityservice.service.UserService;
 import cluster.security.securityservice.util.TokenType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -22,6 +25,7 @@ public abstract class JwtHelper {
 
     private final AccessRsaKeyConfig accessRsaKeyConfig;
     private final RefreshRsaKeyConfig refreshRsaKeyConfig;
+    private final UserService userServiceImpl;
 
 
     protected String generateToken(UserDetails userDetails, TokenType tokenType) {
@@ -56,6 +60,11 @@ public abstract class JwtHelper {
     }
 
     public boolean isTokenExpired(String token, TokenType tokenType) {
+        if (token == null)
+            return true;
+        String username = getAllClaimsFromToken(token, tokenType).getSubject();
+        if (userServiceImpl.findByUsername(username).isEmpty())
+            return true;
         try {
             return (tokenType == TokenType.ACCESS)
                     ? this.getAllClaimsFromToken(token, TokenType.ACCESS).getExpiration().before(new Date())

@@ -1,4 +1,4 @@
-package cluster.security.securityservice.service.token;
+package cluster.security.securityservice.service.impl.token;
 
 import org.springframework.security.core.userdetails.UserDetails;
 

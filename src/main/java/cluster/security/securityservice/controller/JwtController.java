@@ -13,17 +13,17 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class JwtController {
 
-    private final JwtService jwtService;
+    private final JwtService jwtServiceImpl;
 
     @GetMapping("/public-key")
     public ResponseEntity<?> getPublicKey() {
-        return jwtService.getPublicKey();
+        return jwtServiceImpl.getPublicKey();
     }
 
     @PostMapping("/update-token")
     public ResponseEntity<?> updateAccessToken(@RequestBody Map<String, String> requestBody) {
         final String refreshToken = requestBody.get("refreshToken");
-        return ResponseEntity.ok(jwtService.updatedAccessToken(refreshToken));
+        return ResponseEntity.ok(jwtServiceImpl.updatedAccessToken(refreshToken));
     }
 
 

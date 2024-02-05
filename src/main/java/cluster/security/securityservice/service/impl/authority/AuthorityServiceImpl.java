@@ -1,4 +1,4 @@
-package cluster.security.securityservice.service;
+package cluster.security.securityservice.service.impl.authority;
 
 
 import cluster.security.securityservice.dao.AuthorityJpaRepo;
@@ -9,12 +9,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class AuthorityService {
+public class AuthorityServiceImpl implements AuthorityService {
 
     private final AuthorityJpaRepo authorityJpaRepo;
 
     @Transactional
-    protected void saveAuthority(Authority authority) {
+    public void saveAuthority(Authority authority) {
         authorityJpaRepo.save(authority);
     }
 }
