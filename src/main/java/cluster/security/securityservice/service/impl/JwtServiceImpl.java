@@ -20,6 +20,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Base64;
 
@@ -50,6 +51,7 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
+    @Transactional
     public void save(UserRegistration userRegistration, HttpServletResponse response) {
         userServiceImpl.save(userRegistration);
         final JwtRequest jwtRequest = parseUserRegistrationIntoJwtRequest(userRegistration);
