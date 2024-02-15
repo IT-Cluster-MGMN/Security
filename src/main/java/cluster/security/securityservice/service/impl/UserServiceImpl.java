@@ -59,7 +59,6 @@ public class UserServiceImpl implements UserService {
             userRegistration.setPassword("{bcrypt}" + passwordEncoder.encode(userRegistration.getUser().getPassword()));
 
             userJpaRepo.save(userRegistration.getUser());
-            authorityServiceImpl.saveAuthority(userRegistration.getAuthority());
         } else {
             throw new UsernameException(
                     String.format("User with username '%s' already exists", userRegistration.getUser().getUsername()));

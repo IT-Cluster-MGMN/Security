@@ -51,8 +51,7 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    @Transactional
-    public void save(UserRegistration userRegistration, HttpServletResponse response) {
+    public void registerAndLogin(UserRegistration userRegistration, HttpServletResponse response) {
         userServiceImpl.save(userRegistration);
         final JwtRequest jwtRequest = parseUserRegistrationIntoJwtRequest(userRegistration);
         configureAllCookies(jwtRequest, response);

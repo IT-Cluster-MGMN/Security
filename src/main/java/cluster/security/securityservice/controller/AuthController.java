@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final JwtService jwtServiceImpl;
-    private final UserService userServiceImpl;
 
     @PostMapping("/login")
     public ResponseEntity<?> createAuthToken(@RequestBody JwtRequest authRequest,
@@ -36,7 +35,7 @@ public class AuthController {
     @PostMapping("/register")
     public void createUser(@RequestBody UserRegistration userRegistration,
                            HttpServletResponse response) {
-        jwtServiceImpl.save(userRegistration, response);
+        jwtServiceImpl.registerAndLogin(userRegistration, response);
     }
 
     @GetMapping("/is-logged-in")

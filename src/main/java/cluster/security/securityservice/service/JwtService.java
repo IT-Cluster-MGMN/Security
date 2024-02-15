@@ -11,7 +11,7 @@ public interface JwtService {
 
     ResponseEntity<?> getAccessTokenAndSetAllTokens(JwtRequest authRequest, HttpServletResponse response);
 
-    void save(UserRegistration userRegistration, HttpServletResponse response);
+    void registerAndLogin(UserRegistration userRegistration, HttpServletResponse response);
 
     String updatedAccessToken(String refreshToken);
 

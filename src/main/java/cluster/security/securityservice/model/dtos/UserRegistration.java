@@ -12,8 +12,6 @@ import lombok.*;
 public class UserRegistration {
 
     private User user;
-    private final Authority authority;
-
 
     public UserRegistration(@Pattern(regexp="^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$")
                             @Size(min = 3, max = 50) String username,
@@ -22,11 +20,10 @@ public class UserRegistration {
                 .username(username)
                 .password(password)
                 .enabled(1)
-                .build();
-
-        this.authority = Authority.builder()
-                .username(username)
-                .authority("ROLE_USER")
+                .authority(Authority.builder()
+                        .username(username)
+                        .authority("ROLE_USER")
+                        .build())
                 .build();
     }
 
