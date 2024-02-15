@@ -20,7 +20,6 @@ public class UserController {
 
     // temp {
     @GetMapping("/info")
-    @ResponseBody
     public Iterable<User> findAllUsers() {
         return userServiceImpl.findAll();
     }

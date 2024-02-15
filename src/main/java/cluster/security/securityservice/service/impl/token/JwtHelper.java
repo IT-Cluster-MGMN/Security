@@ -3,8 +3,6 @@ package cluster.security.securityservice.service.impl.token;
 
 import cluster.security.securityservice.config.keys.AccessRsaKeyConfig;
 import cluster.security.securityservice.config.keys.RefreshRsaKeyConfig;
-import cluster.security.securityservice.dao.UserJpaRepo;
-import cluster.security.securityservice.model.entity.User;
 import cluster.security.securityservice.service.UserService;
 import cluster.security.securityservice.util.TokenType;
 import io.jsonwebtoken.Claims;

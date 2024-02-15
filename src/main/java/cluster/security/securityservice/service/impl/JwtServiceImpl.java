@@ -2,7 +2,6 @@ package cluster.security.securityservice.service.impl;
 
 
 import cluster.security.securityservice.model.dtos.*;
-import cluster.security.securityservice.model.entity.User;
 import cluster.security.securityservice.service.JwtService;
 import cluster.security.securityservice.service.UserService;
 import cluster.security.securityservice.service.impl.token.AccessTokenService;
@@ -44,11 +43,17 @@ public class JwtServiceImpl implements JwtService {
             return authExceptionBody();
         }
 
-        response.addHeader("Set-Cookie", configuredCookie(authRequest, TokenType.ACCESS).toString());
-        response.addHeader("Set-Cookie", configuredCookie(authRequest, TokenType.REFRESH).toString());
+        configureAllCookies(authRequest, response);
 
         return ResponseEntity.ok(
                 new JwtResponse(accessToken(authRequest)));
+    }
+
+    @Override
+    public void save(UserRegistration userRegistration, HttpServletResponse response) {
+        userServiceImpl.save(userRegistration);
+        final JwtRequest jwtRequest = parseUserRegistrationIntoJwtRequest(userRegistration);
+        configureAllCookies(jwtRequest, response);
     }
 
     @Override
@@ -126,6 +131,18 @@ public class JwtServiceImpl implements JwtService {
         }
 
         return loggedIn;
+    }
+
+    private void configureAllCookies(JwtRequest authRequest, HttpServletResponse response) {
+        response.addHeader("Set-Cookie", configuredCookie(authRequest, TokenType.ACCESS).toString());
+        response.addHeader("Set-Cookie", configuredCookie(authRequest, TokenType.REFRESH).toString());
+    }
+
+    private JwtRequest parseUserRegistrationIntoJwtRequest(UserRegistration userRegistration) {
+        return new JwtRequest(
+                userRegistration.getUser().getUsername(),
+                userRegistration.getUser().getPassword()
+        );
     }
 
     private void authenticateUserFromRequest(JwtRequest authRequest) {

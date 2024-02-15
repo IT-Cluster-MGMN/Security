@@ -28,13 +28,15 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> logout(HttpServletRequest request,
+                                    HttpServletResponse response) {
         return jwtServiceImpl.removeTokensFromCookie(request, response);
     }
 
     @PostMapping("/register")
-    public void createUser(@RequestBody UserRegistration userRegistration) {
-        userServiceImpl.save(userRegistration);
+    public void createUser(@RequestBody UserRegistration userRegistration,
+                           HttpServletResponse response) {
+        jwtServiceImpl.save(userRegistration, response);
     }
 
     @GetMapping("/is-logged-in")
