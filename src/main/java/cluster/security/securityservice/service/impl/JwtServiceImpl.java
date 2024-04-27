@@ -23,6 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
 
 @Service
@@ -51,10 +53,12 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public void registerAndLogin(UserRegistration userRegistration, HttpServletResponse response) {
+    public ResponseEntity<?> registerAndLogin(UserRegistration userRegistration,
+                                              HttpServletResponse response) {
         userServiceImpl.save(userRegistration);
         final JwtRequest jwtRequest = parseUserRegistrationIntoJwtRequest(userRegistration);
-        configureAllCookies(jwtRequest, response);
+
+        return ResponseEntity.ok(configureAllCookies(jwtRequest, response));
     }
 
     @Override
@@ -134,9 +138,21 @@ public class JwtServiceImpl implements JwtService {
         return loggedIn;
     }
 
-    private void configureAllCookies(JwtRequest authRequest, HttpServletResponse response) {
-        response.addHeader("Set-Cookie", configuredCookie(authRequest, TokenType.ACCESS).toString());
-        response.addHeader("Set-Cookie", configuredCookie(authRequest, TokenType.REFRESH).toString());
+    private Map<String, String> configureAllCookies(JwtRequest authRequest, HttpServletResponse response) {
+        final ResponseCookie accessToken = configuredCookie(authRequest, TokenType.ACCESS);
+        final ResponseCookie refreshToken = configuredCookie(authRequest, TokenType.REFRESH);
+
+        response.addHeader("Set-Cookie", accessToken.toString());
+        response.addHeader("Set-Cookie", refreshToken.toString());
+
+        final String accessTokenAsString = accessToken.getValue();
+        final String refreshTokenAsString = accessToken.getValue();
+
+        final Map<String, String> tokens = new HashMap<>();
+        tokens.put("accessToken", accessTokenAsString.replaceAll("accessToken=",""));
+        tokens.put("refreshToken", refreshTokenAsString.replaceAll("refreshToken=",""));
+
+        return tokens;
     }
 
     private JwtRequest parseUserRegistrationIntoJwtRequest(UserRegistration userRegistration) {
@@ -214,5 +230,13 @@ public class JwtServiceImpl implements JwtService {
     private ResponseEntity<?> cookieExceptionBody() {
         return new ResponseEntity<>("Cookie is null",
                 HttpStatus.BAD_REQUEST);
+    }
+
+    private ResponseEntity<?> userAlreadyExistsExceptionBody() {
+        return new ResponseEntity<>(new AuthError(
+           HttpStatus.BAD_REQUEST.value(),
+           "User with such username already exists",
+           System.currentTimeMillis()
+        ), HttpStatus.BAD_REQUEST);
     }
 }

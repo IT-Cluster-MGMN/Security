@@ -7,11 +7,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Map;
+
 public interface JwtService {
 
     ResponseEntity<?> getAccessTokenAndSetAllTokens(JwtRequest authRequest, HttpServletResponse response);
 
-    void registerAndLogin(UserRegistration userRegistration, HttpServletResponse response);
+    ResponseEntity<?> registerAndLogin(UserRegistration userRegistration, HttpServletResponse response);
 
     String updatedAccessToken(String refreshToken);
 
@@ -22,4 +24,5 @@ public interface JwtService {
     ResponseEntity<?> removeTokensFromCookie(HttpServletRequest request, HttpServletResponse response);
 
     IsLoggedInResponse isLoggedIn(HttpServletRequest request);
+
 }

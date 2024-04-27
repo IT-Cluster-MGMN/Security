@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final JwtService jwtServiceImpl;
+    private final UserService userServiceImpl;
 
     @PostMapping("/login")
     public ResponseEntity<?> createAuthToken(@RequestBody JwtRequest authRequest,
@@ -33,13 +36,23 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public void createUser(@RequestBody UserRegistration userRegistration,
-                           HttpServletResponse response) {
-        jwtServiceImpl.registerAndLogin(userRegistration, response);
+    public ResponseEntity<?> createUser(@RequestBody UserRegistration userRegistration,
+                                        HttpServletResponse response) {
+        return jwtServiceImpl.registerAndLogin(userRegistration, response);
     }
 
     @GetMapping("/is-logged-in")
     public IsLoggedInResponse isLoggedIn(HttpServletRequest request) {
         return jwtServiceImpl.isLoggedIn(request);
+    }
+
+    @PostMapping("/is-present")
+    public Map<String, Boolean> isUserPresent(@RequestBody Map<String, String> username) {
+        return userServiceImpl.isPresent(username.get("username"));
+    }
+
+    @PostMapping("/delete")
+    public void deleteUser(@RequestBody Map<String, String> username) {
+        userServiceImpl.delete(username.get("username"));
     }
 }

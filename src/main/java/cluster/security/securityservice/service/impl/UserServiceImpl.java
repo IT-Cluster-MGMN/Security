@@ -15,9 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +23,6 @@ public class UserServiceImpl implements UserService {
 
     private final UserJpaRepo userJpaRepo;
     private final PasswordEncoder passwordEncoder;
-    private final AuthorityService authorityServiceImpl;
 
     /**
      * Implements authentication by retrieving user data from the database and comparing it with the user's input.
@@ -81,4 +78,17 @@ public class UserServiceImpl implements UserService {
         return userJpaRepo.findAll();
     }
 
+    @Override
+    public Map<String, Boolean> isPresent(String username) {
+        final Map<String, Boolean> result = new HashMap<>();
+        final boolean isPresent = userJpaRepo.existsById(username);
+        result.put("isPresent", isPresent);
+        return result;
+    }
+
+    @Override
+    public void delete(String username) {
+        final Optional<User> userOptional = userJpaRepo.findById(username);
+        userOptional.ifPresent(userJpaRepo::delete);
+    }
 }
