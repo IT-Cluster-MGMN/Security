@@ -36,6 +36,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
+    @CrossOrigin(origins = "http://localhost:8082")
     public ResponseEntity<?> createUser(@RequestBody UserRegistration userRegistration,
                                         HttpServletResponse response) {
         return jwtServiceImpl.registerAndLogin(userRegistration, response);
